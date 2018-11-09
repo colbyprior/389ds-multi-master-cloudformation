@@ -1,0 +1,3 @@
+[submodule "roles/389-ldap-server"]
+	path = roles/389-ldap-server
+	url = git@github.com:colbyprior/389-ldap-server.git
