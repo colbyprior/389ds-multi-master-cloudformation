@@ -1,0 +1,55 @@
+---
+- name: deploy cloudformation
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - "{{ var_file }}"
+
+  tasks:
+    - name: sync roles
+      s3_sync:
+        bucket: "{{ config_bucket }}"
+        file_root: roles
+        key_prefix: roles
+        region: "{{ aws_region }}"
+        delete: yes
+        mode: push
+
+    - name: copy 389-ds.yml
+      aws_s3:
+        bucket: "{{ config_bucket }}"
+        src: "389-ds.yml"
+        object: "389-ds.yml"
+        region: "{{ aws_region }}"
+        mode: put
+
+    - name: copy vars
+      aws_s3:
+        bucket: "{{ config_bucket }}"
+        src: "{{ var_file }}"
+        object: "vars/{{ stack_name }}"
+        region: "{{ aws_region }}"
+        mode: put
+
+    - name: deploy cloudformation
+      cloudformation:
+        stack_name: "{{ stack_name }}"
+        region: "{{ aws_region }}"
+        state: "{{ stack_state }}"
+        template: formation-stack.yml
+        disable_rollback: true
+        template_parameters:
+          InstanceTypeParameter: "{{ instance_type }}"
+          VpcId: "{{ vpc_id }}"
+          AMI: "{{ ami }}"
+          InstanceKeypair: "{{ instance_keypair }}"
+          Subnet: "{{ subnet }}"
+          ConfigBucket: "{{ config_bucket }}"
+          AllowedIPRange: "{{ allowed_ip_range }}"
+          SnsArn: "{{ sns_arn }}"
+        tags:
+          Group: "{{ group }}"
+          Environment: "{{ env }}"
+          Email: "{{ email }}"
+          Service: "{{ service }}"

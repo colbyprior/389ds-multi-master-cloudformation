@@ -1,0 +1,4 @@
+---
+- hosts: localhost
+  roles:
+    - 389-ldap-server
