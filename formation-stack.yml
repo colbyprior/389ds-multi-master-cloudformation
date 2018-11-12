@@ -125,7 +125,7 @@ Resources:
       IamInstanceProfile: !Ref InstanceProfile
       SubnetId: !Ref Subnet
       BlockDeviceMappings: 
-        - DeviceName: "/dev/sda1"
+        - DeviceName: "/dev/sdb"
           Ebs: 
             VolumeSize: "16"
             VolumeType: "gp2"
@@ -139,12 +139,12 @@ Resources:
             CONFIG_BUCKET='${ConfigBucket}'
             STACK_NAME='${AWS::StackName}'
             TMP_INSTALL_DIR='/etc/setup-files'
+            yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -y
 
             echo "SECTION: Install base packages:"
-            apt update -y
-            apt install awscli -y
-            apt install jq -y
-            apt install python-pip -y
+            yum update -y
+            yum install jq -y
+            yum install python-pip -y
             pip install ansible
             
             echo "SECTION: Configure AWS CLI:"
@@ -159,7 +159,6 @@ Resources:
             echo "127.0.0.1 ldap" >> /etc/hosts
             ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$STACK_NAME --connection=local
             systemctl enable dirsrv@ldap
-            #
       Tags:
         -
          Key: Name
