@@ -97,15 +97,20 @@ Resources:
          FromPort: "636"
          ToPort: "636"
          CidrIp: !Ref AllowedIPRange
-        - 
-         IpProtocol: "tcp"
-         FromPort: "389"
-         ToPort: "389"
-         CidrIp: "10.0.0.0/8"
       Tags:
         -
          Key: Name
          Value: !Ref AWS::StackName
+
+  SecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    DependsOn: Ec2SecurityGroup
+    Properties:
+      GroupId: !GetAtt Ec2SecurityGroup.GroupId
+      IpProtocol: tcp
+      FromPort: 389
+      ToPort: 389
+      SourceSecurityGroupId: !Ref Ec2SecurityGroup
 
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
