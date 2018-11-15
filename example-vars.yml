@@ -1,0 +1,50 @@
+---
+#
+# Cloudformation
+#
+stack_name: ldap
+aws_region: ap-southeast-2
+stack_state: present
+instance_type: t2.medium
+vpc_id: vpc-000000000000
+ami: ami-0b8dea0e70b969adc # amazon linux 2 ap-southeast-2
+instance_keypair: my-dev-key
+subnet: "subnet-0000000000"
+config_bucket: my-ansible-config-bucket
+allowed_ip_range: 10.0.0.0/24
+group: cool-devs
+env: Development
+email: me@example.com
+service: ldap
+route_53_zone_name: example.com. # don't forget the trailing dot!
+sns_arn: arn:aws:sns:ap-southeast-2:000000000:DangerWillRobertson
+
+# Configuration type
+# if it is set - preparation and 389-ds configuration activities will be skipped (usually to add a new replication agreement)
+skip_config: false
+
+# General 389-ds settings
+password: Admin123
+suffix: dc=example,dc=com
+rootdn: cn=root
+#serverid: added using cloudformation user-data
+
+# Admin server settings
+admin_password: Admin123
+admin_domain: example.com
+
+# Replication supplier settings
+supplier: true
+#replication_nsds5replicaid: added using cloudformation user-data
+agreement_name: ReplicationAgreement
+#consumer_host: added using cloudformation user-data
+init_consumer: true
+
+# Replication consumer settings
+consumer: true
+# this will create LDAP user cn=replmanager,cn=config
+replication_user: replmanager
+replication_user_password: ReplicationAdmin123
+
+# User-Data
+
