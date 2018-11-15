@@ -34,6 +34,9 @@ Parameters:
     Type: String
     Default: 10.0.0.0/24
     Description: The IPv4 address range to allow LDAP connections from.
+  HostedZone:
+    Type: String
+    Default: example.com
   SnsArn:
     Type: String
     Default: arn:aws:sns:XXX:XXX:XXX
@@ -94,6 +97,11 @@ Resources:
          FromPort: "636"
          ToPort: "636"
          CidrIp: !Ref AllowedIPRange
+        - 
+         IpProtocol: "tcp"
+         FromPort: "389"
+         ToPort: "389"
+         CidrIp: "10.0.0.0/8"
       Tags:
         -
          Key: Name
@@ -111,7 +119,7 @@ Resources:
   #
   # Compute Section
   #
-  EC2Instance:
+  LDAP1Instance:
     Type: AWS::EC2::Instance
     DependsOn:
      - InstanceProfile
@@ -137,7 +145,8 @@ Resources:
             PRIVATE_IP=$(curl -fsq http://169.254.169.254/latest/meta-data/local-ipv4)
             INSTANCE_ID=$(curl -fsq http://169.254.169.254/latest/meta-data/instance-id)
             CONFIG_BUCKET='${ConfigBucket}'
-            STACK_NAME='${AWS::StackName}'
+            HOST_NAME='${AWS::StackName}-1'
+            REPLICA_NAME='${AWS::StackName}-2'
             TMP_INSTALL_DIR='/etc/setup-files'
             yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -y
 
@@ -157,11 +166,95 @@ Resources:
 
             echo "SECTION: Run Ansible playbook:"
             echo "127.0.0.1 ldap" >> /etc/hosts
-            ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$STACK_NAME --connection=local
-            systemctl enable dirsrv@ldap
+            echo "" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "serverid: "$HOST_NAME >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "consumer_host: "$REPLICA_NAME".dev.aws.auscert.org.au" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "replication_nsds5replicaid: 1" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
+            systemctl enable dirsrv@$HOST_NAME
       Tags:
         -
          Key: Name
-         Value: !Ref AWS::StackName
+         Value: !Join ['', [ !Ref 'AWS::StackName', '-1']]
 
+  LDAP2Instance:
+    Type: AWS::EC2::Instance
+    DependsOn:
+     - InstanceProfile
+     - Ec2SecurityGroup
+    Properties:
+      ImageId: !Ref AMI
+      SecurityGroupIds: 
+       - !GetAtt Ec2SecurityGroup.GroupId
+      InstanceType: !Ref InstanceTypeParameter
+      KeyName: !Ref InstanceKeypair
+      IamInstanceProfile: !Ref InstanceProfile
+      SubnetId: !Ref Subnet
+      BlockDeviceMappings: 
+        - DeviceName: "/dev/sdb"
+          Ebs: 
+            VolumeSize: "16"
+            VolumeType: "gp2"
+      UserData:
+        "Fn::Base64":
+          !Sub |
+            #!/bin/bash
+            echo "SECTION: Set metadata variables:"
+            PRIVATE_IP=$(curl -fsq http://169.254.169.254/latest/meta-data/local-ipv4)
+            INSTANCE_ID=$(curl -fsq http://169.254.169.254/latest/meta-data/instance-id)
+            CONFIG_BUCKET='${ConfigBucket}'
+            HOST_NAME='${AWS::StackName}-2'
+            REPLICA_NAME='${AWS::StackName}-1'
+            TMP_INSTALL_DIR='/etc/setup-files'
+            yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm -y
+
+            echo "SECTION: Install base packages:"
+            yum update -y
+            yum install jq -y
+            yum install python-pip -y
+            pip install ansible
+            
+            echo "SECTION: Configure AWS CLI:"
+            REGION=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq .region -r)
+            aws configure set default.region $REGION
+            
+            echo "SECTION: Sync config bucket:"
+            mkdir $TMP_INSTALL_DIR
+            aws s3 cp s3://$CONFIG_BUCKET/ $TMP_INSTALL_DIR --recursive
+
+            echo "SECTION: Run Ansible playbook:"
+            echo "127.0.0.1 ldap" >> /etc/hosts
+            echo "" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "serverid: "$HOST_NAME >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "consumer_host: "$REPLICA_NAME".dev.aws.auscert.org.au" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "replication_nsds5replicaid: 2" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
+            systemctl enable dirsrv@$HOST_NAME
+      Tags:
+        -
+         Key: Name
+         Value: !Join ['', [ !Ref 'AWS::StackName', '-2']]
+
+
+  LDAP1DNS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Ref 'HostedZone'
+      Comment: DNS endpoint for LDAP replication.
+      Name: !Join ['', [ !Ref 'AWS::StackName', '-1', ., !Ref 'HostedZone']]
+      Type: A
+      TTL: '900'
+      ResourceRecords:
+      - !GetAtt LDAP1Instance.PrivateIp
+
+  LDAP2DNS:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneName: !Ref 'HostedZone'
+      Comment: DNS endpoint for LDAP replication.
+      Name: !Join ['', [ !Ref 'AWS::StackName', '-2', ., !Ref 'HostedZone']]
+      Type: A
+      TTL: '900'
+      ResourceRecords:
+      - !GetAtt LDAP2Instance.PrivateIp
 

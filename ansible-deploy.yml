@@ -24,11 +24,19 @@
         region: "{{ aws_region }}"
         mode: put
 
-    - name: copy vars
+    - name: copy ldap1 vars
       aws_s3:
         bucket: "{{ config_bucket }}"
         src: "{{ var_file }}"
-        object: "vars/{{ stack_name }}"
+        object: "vars/{{ stack_name }}-1"
+        region: "{{ aws_region }}"
+        mode: put
+
+    - name: copy ldap2 vars
+      aws_s3:
+        bucket: "{{ config_bucket }}"
+        src: "{{ var_file }}"
+        object: "vars/{{ stack_name }}-2"
         region: "{{ aws_region }}"
         mode: put
 
@@ -48,6 +56,7 @@
           ConfigBucket: "{{ config_bucket }}"
           AllowedIPRange: "{{ allowed_ip_range }}"
           SnsArn: "{{ sns_arn }}"
+          HostedZone: "{{ route_53_zone_name }}"
         tags:
           Group: "{{ group }}"
           Environment: "{{ env }}"
