@@ -75,6 +75,16 @@ Resources:
                 Resource: 
                   - !Join [ "", [ "arn:aws:s3:::", Ref: ConfigBucket ] ]
                   - !Join [ "", [ "arn:aws:s3:::", Ref: ConfigBucket, "/*" ] ]
+        - PolicyName: "writeConfigBucketBackupDir"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - 
+                Effect: "Allow"
+                Action: 
+                  - "s3:PutObject"
+                Resource: 
+                  - !Join [ "", [ "arn:aws:s3:::", Ref: ConfigBucket, "/backup/*" ] ]
 
   Ec2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
