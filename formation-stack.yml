@@ -181,8 +181,9 @@ Resources:
             aws s3 cp s3://$CONFIG_BUCKET/ $TMP_INSTALL_DIR --recursive
 
             echo "SECTION: Run Ansible playbook:"
-            echo "127.0.0.1 ldap" >> /etc/hosts
+            echo "127.0.0.1 "${AWS::StackName}".$HOSTED_ZONE" >> /etc/hosts
             echo "" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "ldap_fqdn: "$HOST_NAME".$HOSTED_ZONE" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "serverid: "$HOST_NAME >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "consumer_host: "$REPLICA_NAME".$HOSTED_ZONE" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "replication_nsds5replicaid: 1" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
@@ -240,8 +241,9 @@ Resources:
             aws s3 cp s3://$CONFIG_BUCKET/ $TMP_INSTALL_DIR --recursive
 
             echo "SECTION: Run Ansible playbook:"
-            echo "127.0.0.1 ldap" >> /etc/hosts
+            echo "127.0.0.1 "${AWS::StackName}".$HOSTED_ZONE" >> /etc/hosts
             echo "" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "ldap_fqdn: "$HOST_NAME".$HOSTED_ZONE" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "serverid: "$HOST_NAME >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "consumer_host: "$REPLICA_NAME".$HOSTED_ZONE" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "replication_nsds5replicaid: 2" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
