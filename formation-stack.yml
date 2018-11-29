@@ -22,10 +22,14 @@ Parameters:
     Type: AWS::EC2::KeyPair::KeyName
     Default: my-key
     Description: EC2 keypair to associate with instance.
-  Subnet:
+  Subnet1:
     Type: AWS::EC2::Subnet::Id
     Default: "subnet-00000001"
-    Description: The subnet to deploy the Ec2.
+    Description: The subnet to deploy one Ec2.
+  Subnet2:
+    Type: AWS::EC2::Subnet::Id
+    Default: "subnet-00000001"
+    Description: The subnet to deploy the other Ec2.
   ConfigBucket:
     Type: String
     Default: config-bucket
@@ -146,7 +150,7 @@ Resources:
       InstanceType: !Ref InstanceTypeParameter
       KeyName: !Ref InstanceKeypair
       IamInstanceProfile: !Ref InstanceProfile
-      SubnetId: !Ref Subnet
+      SubnetId: !Ref Subnet1
       BlockDeviceMappings: 
         - DeviceName: "/dev/sdb"
           Ebs: 
@@ -206,7 +210,7 @@ Resources:
       InstanceType: !Ref InstanceTypeParameter
       KeyName: !Ref InstanceKeypair
       IamInstanceProfile: !Ref InstanceProfile
-      SubnetId: !Ref Subnet
+      SubnetId: !Ref Subnet2
       BlockDeviceMappings: 
         - DeviceName: "/dev/sdb"
           Ebs: 
