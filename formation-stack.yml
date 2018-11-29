@@ -18,6 +18,10 @@ Parameters:
     Type: AWS::EC2::Image::Id
     Default: ami-0000000
     Description: AMI for EC2.
+  DiskSpace:
+    Type: String
+    Default: 16
+    Description: Disk space size on ec2 instances
   InstanceKeypair:
     Type: AWS::EC2::KeyPair::KeyName
     Default: my-key
@@ -193,6 +197,12 @@ Resources:
             echo "replication_nsds5replicaid: 1" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
             systemctl enable dirsrv@$HOST_NAME
+
+            echo "SECTION: Waiting two minutes for other server to complete:"
+            sleep 120
+
+            echo "SECTION: Initalizing replication:"
+            ansible-playbook $TMP_INSTALL_DIR/roles/389-ldap-server/repl.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
       Tags:
         -
          Key: Name
@@ -253,6 +263,12 @@ Resources:
             echo "replication_nsds5replicaid: 2" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
             systemctl enable dirsrv@$HOST_NAME
+
+            echo "SECTION: Waiting two minutes for other server to complete:"
+            sleep 120
+
+            echo "SECTION: Initalizing replication:"
+            ansible-playbook $TMP_INSTALL_DIR/roles/389-ldap-server/repl.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
       Tags:
         -
          Key: Name
