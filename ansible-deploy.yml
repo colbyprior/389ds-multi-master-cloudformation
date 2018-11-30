@@ -54,6 +54,7 @@
           InstanceKeypair: "{{ instance_keypair }}"
           Subnet1: "{{ subnet1 }}"
           Subnet2: "{{ subnet2 }}"
+          NLBSubnets: "{{ nlb_subnets }}"
           ConfigBucket: "{{ config_bucket }}"
           AllowedIPRange: "{{ allowed_ip_range }}"
           SnsArn: "{{ sns_arn }}"
