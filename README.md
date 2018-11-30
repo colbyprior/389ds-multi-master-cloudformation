@@ -16,3 +16,12 @@ After deploying the cloudformation stack the network load balancer will blindly 
 `aws ec2 describe-network-interfaces | jq '[.NetworkInterfaces | .[] | {IP: .PrivateIpAddress, Name: .Description} ]' | grep ldap -B1`
 
 Put these addresses in to the network load balancer addresses cloudformation parameter and re-deploy the stack.
+
+## Backups
+The EC2 IAM roles get granted write access to the config bucket under the `bak` directory. A nightly cron job runs on each host and syncs rotated logs and a dump of the entire database using `db2ldif`.
+
+## Deploying multiple cloudformations in the same account and production updates
+The templates in this cloudformation stack should all be templated in a way that you could deploy a new one along side of another and they won't conflict and should be easily discernible from each other. This means that a new stack could be deployed along side a production stack then the LDAP backup ldif could be imported in to the new stack to replace production as a hot swap.
+
+### DNS Endpoint for Network Load Balancer
+There is intentionally not a route53 record for the NLB. This is intended to be a manual step after deploying so that the route53 record can be independent of the cloudformation stack for the ease of a DNS cutover with the option of rolling back easily when the stack needs replacement.
