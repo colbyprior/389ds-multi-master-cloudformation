@@ -15,6 +15,7 @@
         region: "{{ aws_region }}"
         delete: yes
         mode: push
+        file_change_strategy: checksum
 
     - name: copy 389-ds.yml
       aws_s3:
