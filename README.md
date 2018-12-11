@@ -1,7 +1,7 @@
 # 389ds Multi Master Cloudformation
 This repository is for deploying a multi master 389ds ldap setup with two Ec2 instances behind a network load balancer.
 
-![Architecture](https://github.com/colbyprior/389ds-multi-master-cloudformation/master/docs/ldap.png)
+![Architecture](https://raw.githubusercontent.com/colbyprior/389ds-multi-master-cloudformation/master/docs/ldap.png)
 
 ## Deploying
 - First create an S3 bucket to hold the config files.
