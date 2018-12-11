@@ -15,7 +15,7 @@ After deploying the cloudformation stack the network load balancer will blindly 
 
 `aws ec2 describe-network-interfaces | jq '[.NetworkInterfaces | .[] | {IP: .PrivateIpAddress, Name: .Description} ]' | grep ldap -B1`
 
-Put these addresses in to the network load balancer addresses cloudformation parameter and re-deploy the stack.
+Put these addresses in to the network load balancer addresses cloudformation parameter and re-deploy the stack. Alternatively simply update the security group manually via the web console. Future cloudformation updates won't overwrite these changes unless something conflicts with the rules.
 
 ## Backups
 The EC2 IAM roles get granted write access to the config bucket under the `bak` directory. A nightly cron job runs on each host and syncs rotated logs and a dump of the entire database using `db2ldif`.
