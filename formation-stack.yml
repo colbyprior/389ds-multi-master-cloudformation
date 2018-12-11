@@ -195,9 +195,9 @@ Resources:
             echo "SECTION: Run Ansible playbook:"
             echo "127.0.0.1 "${AWS::StackName}".$HOSTED_ZONE" | sed -e 's/\.$//' >> /etc/hosts
             echo "" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
-            echo "ldap_fqdn: "$HOST_NAME".$HOSTED_ZONE" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "ldap_fqdn: "$HOST_NAME".$HOSTED_ZONE" | sed -e 's/\.$//' >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "serverid: "$HOST_NAME >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
-            echo "replica_host: "$REPLICA_NAME".$HOSTED_ZONE" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "replica_host: "$REPLICA_NAME".$HOSTED_ZONE" | sed -e 's/\.$//' >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "replication_nsds5replicaid: 1" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
             systemctl enable dirsrv@$HOST_NAME
@@ -261,9 +261,9 @@ Resources:
             echo "SECTION: Run Ansible playbook:"
             echo "127.0.0.1 "${AWS::StackName}".$HOSTED_ZONE" | sed -e 's/\.$//' >> /etc/hosts
             echo "" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
-            echo "ldap_fqdn: "$HOST_NAME".$HOSTED_ZONE" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "ldap_fqdn: "$HOST_NAME".$HOSTED_ZONE" | sed -e 's/\.$//' >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "serverid: "$HOST_NAME >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
-            echo "replica_host: "$REPLICA_NAME".$HOSTED_ZONE" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "replica_host: "$REPLICA_NAME".$HOSTED_ZONE" | sed -e 's/\.$//' >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "replication_nsds5replicaid: 2" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
             systemctl enable dirsrv@$HOST_NAME
