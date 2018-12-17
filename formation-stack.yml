@@ -199,6 +199,10 @@ Resources:
             echo "serverid: "$HOST_NAME >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "replica_host: "$REPLICA_NAME".$HOSTED_ZONE" | sed -e 's/\.$//' >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "replication_nsds5replicaid: 1" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "gid_min: 1000" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "gid_max: 1999" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "uid_min: 1000" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "uid_max: 1999" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
             systemctl enable dirsrv@$HOST_NAME
 
@@ -265,6 +269,10 @@ Resources:
             echo "serverid: "$HOST_NAME >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "replica_host: "$REPLICA_NAME".$HOSTED_ZONE" | sed -e 's/\.$//' >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             echo "replication_nsds5replicaid: 2" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "gid_min: 2000" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "gid_max: 2999" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "uid_min: 2000" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
+            echo "uid_max: 2999" >> $TMP_INSTALL_DIR"/vars/"$HOST_NAME
             ansible-playbook $TMP_INSTALL_DIR/389-ds.yml -e "@"$TMP_INSTALL_DIR"/vars/"$HOST_NAME --connection=local
             systemctl enable dirsrv@$HOST_NAME
 
